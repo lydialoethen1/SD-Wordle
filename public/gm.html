@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GM Control — Wave 3 SD Wordle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body { overflow: auto; }
+
+    .gm-page {
+      min-height: 100vh; width: 100%;
+      display: flex; flex-direction: column;
+      background: radial-gradient(ellipse at 50% 20%, #2a1a18 0%, #1C1A17 60%);
+    }
+
+    /* Top bar */
+    .gm-topbar {
+      background: var(--red);
+      padding: 14px 28px;
+      display: flex; align-items: center; gap: 14px;
+      flex-shrink: 0;
+    }
+    .gm-topbar-icon { font-size: 1.4rem; }
+    .gm-topbar-text { flex: 1; }
+    .gm-topbar-text h1 { font-size: 1rem; font-weight: 900; letter-spacing: 0.08em; color: white; }
+    .gm-topbar-text p  { font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-top: 1px; }
+    .gm-phase-pill {
+      padding: 6px 16px; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+      background: rgba(0,0,0,0.25); color: white;
+    }
+    .gm-phase-pill.waiting     { background: rgba(255,188,13,0.25); color: var(--gold); }
+    .gm-phase-pill.playing     { background: rgba(34,197,94,0.25);  color: #4ade80; }
+    .gm-phase-pill.leaderboard { background: rgba(218,41,28,0.25);  color: #ff9d95; }
+
+    /* Main grid */
+    .gm-main {
+      flex: 1; display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 20px; padding: 24px 28px;
+      align-items: start;
+    }
+    @media (max-width: 820px) {
+      .gm-main { grid-template-columns: 1fr; padding: 16px; }
+    }
+
+    /* Card base */
+    .gm-card {
+      background: var(--bg2); border: 1px solid var(--border-lit);
+      border-radius: 16px; padding: 22px 24px;
+    }
+    .gm-card-title {
+      font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .count-badge {
+      padding: 2px 9px; border-radius: 999px;
+      background: var(--gold-bg); border: 1px solid var(--gold-border);
+      color: var(--gold); font-size: 0.65rem; font-weight: 800;
+    }
+
+    /* Player table */
+    .player-table { display: flex; flex-direction: column; gap: 6px; }
+    .player-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px; background: var(--bg3);
+      border-radius: 9px; border: 1px solid var(--border);
+      transition: border-color 0.2s;
+    }
+    .player-row.solved  { border-color: rgba(34,197,94,0.35); }
+    .player-row.failed  { border-color: rgba(218,41,28,0.3); }
+    .player-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--bg); border: 1.5px solid var(--border-lit);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 800; color: var(--gold); flex-shrink: 0;
+      text-transform: uppercase;
+    }
+    .player-name  { flex: 1; font-size: 0.9rem; font-weight: 700; color: var(--text); }
+    .player-guesses { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
+    .player-status-chip {
+      font-size: 0.62rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 999px;
+    }
+    .chip-ready   { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
+    .chip-playing { background: rgba(255,188,13,0.1); color: var(--gold); border: 1px solid var(--gold-border); }
+    .chip-solved  { background: rgba(34,197,94,0.12); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+    .chip-failed  { background: var(--red-bg); color: #ff9d95; border: 1px solid var(--red-border); }
+    .empty-players { padding: 24px; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
+
+    /* Right panel */
+    .gm-right { display: flex; flex-direction: column; gap: 16px; }
+
+    /* Info tiles */
+    .info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .info-tile {
+      background: var(--bg2); border: 1px solid var(--border-lit);
+      border-radius: 14px; padding: 16px 18px;
+    }
+    .info-tile-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .info-tile-value { font-size: 1.6rem; font-weight: 900; color: white; font-variant-numeric: tabular-nums; }
+    .info-tile-value.timer-green  { color: #4ade80; }
+    .info-tile-value.timer-gold   { color: var(--gold); }
+    .info-tile-value.timer-red    { color: #ff9d95; animation: blink 1s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* Word reveal */
+    .word-card {
+      background: var(--bg2); border: 1px solid var(--gold-border);
+      border-radius: 14px; padding: 18px 20px;
+    }
+    .word-card-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .word-card-value { font-size: 2rem; font-weight: 900; letter-spacing: 0.35em; color: var(--gold); }
+    .word-card-hidden { font-size: 0.85rem; color: var(--text-muted); font-style: italic; }
+
+    /* Controls */
+    .controls-card {
+      background: var(--bg2); border: 1px solid var(--border-lit);
+      border-radius: 16px; padding: 20px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .btn-start-game {
+      width: 100%; padding: 16px;
+      background: var(--gold); border: none; border-radius: 10px;
+      color: #1C1A17; font-size: 1rem; font-weight: 900; font-family: inherit;
+      cursor: pointer; transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+      box-shadow: 0 4px 20px rgba(255,188,13,0.3);
+    }
+    .btn-start-game:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(255,188,13,0.45); }
+    .btn-start-game:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .btn-end-game {
+      width: 100%; padding: 14px;
+      background: var(--red); border: none; border-radius: 10px;
+      color: white; font-size: 0.9rem; font-weight: 800; font-family: inherit;
+      cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 16px rgba(218,41,28,0.25);
+    }
+    .btn-end-game:hover { transform: translateY(-2px); }
+
+    .btn-new-round {
+      width: 100%; padding: 13px;
+      background: var(--bg3); border: 1px solid var(--border-lit);
+      border-radius: 10px; color: var(--text);
+      font-size: 0.88rem; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn-new-round:hover { background: #4a4540; }
+
+    .controls-hint {
+      font-size: 0.72rem; color: var(--text-muted); text-align: center; line-height: 1.4;
+    }
+
+    /* Leaderboard overlay (reuses main styles) */
+  </style>
+</head>
+<body>
+<div class="gm-page">
+
+  <!-- Top bar -->
+  <div class="gm-topbar">
+    <div class="gm-topbar-icon">🎮</div>
+    <div class="gm-topbar-text">
+      <h1>GAME MASTER CONTROL</h1>
+      <p>Wave 3 Service Delivery Wordle — private facilitator view</p>
+    </div>
+    <div id="gm-phase-pill" class="gm-phase-pill waiting">WAITING</div>
+  </div>
+
+  <!-- Main panel -->
+  <div class="gm-main">
+
+    <!-- LEFT: Player list -->
+    <div class="gm-card">
+      <div class="gm-card-title">
+        Connected Players
+        <span id="gm-count-badge" class="count-badge">0</span>
+      </div>
+      <div id="player-table" class="player-table">
+        <div class="empty-players">No players have joined yet.<br>Share <strong>localhost:3000</strong> with participants.</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Info + controls -->
+    <div class="gm-right">
+
+      <!-- Timer + Player count tiles -->
+      <div class="info-row">
+        <div class="info-tile">
+          <div class="info-tile-label">Timer</div>
+          <div id="gm-timer" class="info-tile-value timer-green">5:00</div>
+        </div>
+        <div class="info-tile">
+          <div class="info-tile-label">Players</div>
+          <div id="gm-player-count" class="info-tile-value">0</div>
+        </div>
+      </div>
+
+      <!-- Answer word (hidden until game starts) -->
+      <div class="word-card">
+        <div class="word-card-label">Answer Word</div>
+        <div id="gm-word" class="word-card-hidden">Starts when game begins</div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-card">
+        <button id="btn-start" class="btn-start-game">▶ &nbsp;Start Game!</button>
+        <button id="btn-end"   class="btn-end-game"   style="display:none">⏹ &nbsp;End Game Early</button>
+        <button id="btn-new"   class="btn-new-round"  style="display:none">↺ &nbsp;Start New Round</button>
+        <p id="controls-hint" class="controls-hint">Players are in the lobby waiting. Press Start when everyone has joined.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Leaderboard overlay (same design as player view, with extra GM button) -->
+<div id="lb-overlay" class="overlay hidden">
+  <div class="lb-card">
+    <div class="lb-header">
+      <div class="lb-icon">🏆</div>
+      <h2>Round Complete!</h2>
+      <p class="lb-subtitle">Time's up — here are the top resolvers</p>
+      <div class="lb-word-reveal">The word was: <span id="lb-word" class="lb-word"></span></div>
+    </div>
+    <div id="lb-list" class="lb-list"></div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+      <button id="btn-lb-new" class="btn-start-game" style="font-size:0.9rem;padding:13px">↺ &nbsp;Start New Round</button>
+    </div>
+    <div class="lb-next" style="margin-top:16px">
+      <div class="lb-next-text">Auto-resetting in</div>
+      <div id="lb-timer" class="lb-next-count">18</div>
+      <div class="lb-progress-track"><div id="lb-bar" class="lb-progress-bar"></div></div>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="gm.js"></script>
+</body>
+</html>

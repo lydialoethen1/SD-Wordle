@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wave 3 SD Wordle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ══ JOIN SCREEN ══ -->
+  <div id="join-screen" class="screen active">
+    <div class="join-bg-grid"></div>
+    <div class="join-card">
+      <div class="join-logo">
+        <div class="logo-badge">W3<br>SD</div>
+        <h1>Wave 3 Service Delivery</h1>
+        <h2>WORDLE</h2>
+        <p class="tagline">Resolve the Incident. Beat the Clock.</p>
+      </div>
+      <div class="rules-chips">
+        <span class="chip">5-Letter Word</span>
+        <span class="chip">6 Attempts</span>
+        <span class="chip chip-gold">5 Min Timer</span>
+      </div>
+      <div class="join-form">
+        <label for="name-input">Enter Username</label>
+        <input id="name-input" type="text" maxlength="20" placeholder="Enter your name..." autocomplete="off" spellcheck="false" />
+        <button id="join-btn" class="btn-start">Start Game!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ WAITING SCREEN ══ -->
+  <div id="waiting-screen" class="screen">
+    <div class="waiting-logo">
+      <div class="w-badge">W3<br>SD</div>
+      <h1>Wave 3 Service Delivery</h1>
+      <h2>WORDLE</h2>
+      <p>Get ready — the Game Master will start soon</p>
+    </div>
+    <div class="waiting-status">
+      <div class="pulse-dots">
+        <span></span><span></span><span></span>
+      </div>
+      <p class="waiting-text">Waiting for Game Master to begin...</p>
+    </div>
+    <div class="waiting-agents">
+      <div class="waiting-count"><span id="waiting-count">0</span> AGENTS STANDING BY</div>
+      <div id="waiting-bubbles" class="waiting-bubbles"></div>
+    </div>
+  </div>
+
+  <!-- ══ GAME SCREEN ══ -->
+  <div id="game-screen" class="screen">
+    <header class="game-header">
+      <div class="header-brand">
+        <span class="header-logo">W3<br>SD</span>
+        <div>
+          <div class="header-title">SD WORDLE</div>
+          <div class="header-incident" id="incident-label">Round #001</div>
+        </div>
+      </div>
+      <div class="header-timer-wrap">
+        <div class="timer-label">TIMER</div>
+        <div id="timer" class="timer-value">5:00</div>
+        <div class="timer-bar-track"><div id="timer-bar" class="timer-bar"></div></div>
+      </div>
+      <div class="header-agents">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span id="player-count">0</span>
+        <span class="agents-label">PLAYERS</span>
+      </div>
+    </header>
+
+    <div id="toast-container"></div>
+    <div id="status-msg" class="status-msg hidden"></div>
+
+    <div class="game-main">
+      <div id="grid" class="grid"></div>
+      <div id="keyboard" class="keyboard"></div>
+    </div>
+  </div>
+
+  <!-- ══ LEADERBOARD OVERLAY ══ -->
+  <div id="leaderboard-overlay" class="overlay hidden">
+    <div class="lb-card">
+      <div class="lb-header">
+        <div class="lb-icon">🏆</div>
+        <h2>Round Complete!</h2>
+        <p class="lb-subtitle">Time's up — here are the top resolvers</p>
+        <div class="lb-word-reveal">
+          The word was: <span id="revealed-word" class="lb-word"></span>
+        </div>
+      </div>
+      <div id="leaderboard-list" class="lb-list"></div>
+      <div class="lb-next">
+        <div class="lb-next-text">Next round starting in</div>
+        <div id="next-timer" class="lb-next-count">18</div>
+        <div class="lb-progress-track"><div id="lb-progress" class="lb-progress-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
