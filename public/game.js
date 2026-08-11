@@ -16,6 +16,8 @@
   const keyboardEl   = $('keyboard');
   const statusMsg    = $('status-msg');
   const toastCont    = $('toast-container');
+  const hintBox      = $('hint-box');
+  const hintText     = $('hint-text');
   const waitingCount = $('waiting-count');
   const waitingBubbles = $('waiting-bubbles');
   const lbList       = $('leaderboard-list');
@@ -221,12 +223,17 @@
       incidentLabel.textContent = `Round #${String(data.gameId).padStart(3,'0')}`;
       updateTimer(data.timeLeft);
       if (data.phase === 'waiting') showScreen('waiting-screen');
-      else if (data.phase === 'playing') { buildGrid(); buildKeyboard(); showScreen('game-screen'); }
+      else if (data.phase === 'playing') {
+        buildGrid(); buildKeyboard();
+        if (data.hint) { hintText.textContent = data.hint; hintBox.classList.remove('hidden'); }
+        showScreen('game-screen');
+      }
     });
 
-    socket.on('game-started', ({ gameId }) => {
+    socket.on('game-started', ({ gameId, hint }) => {
       incidentLabel.textContent = `Round #${String(gameId).padStart(3,'0')}`;
       updateTimer(TOTAL_TIME); resetBoard(); knownBubbles.clear();
+      if (hint) { hintText.textContent = hint; hintBox.classList.remove('hidden'); }
       showScreen('game-screen');
       toast('🚨 Game Master started the round — GO!', 'alert');
     });
@@ -256,6 +263,7 @@
       hideLeaderboard(); gameOver = false; solved = false;
       incidentLabel.textContent = `Round #${String(gameId).padStart(3,'0')}`;
       updateTimer(TOTAL_TIME); knownBubbles.clear(); waitingBubbles.innerHTML = '';
+      hintBox.classList.add('hidden'); hintText.textContent = '';
       showScreen('waiting-screen');
     });
   }

@@ -16,44 +16,38 @@ app.get('/gm', (req, res) => {
 });
 
 const WORDS = [
-  // ── McDonald's — menu, brand & restaurant ops ──────────────────────────────
-  'FRIES','SHAKE','PATTY','FILET','HAPPY','BACON','SAUCE','RANCH','APPLE','CRISP',
-  'SWEET','HONEY','LARGE','SMALL','TOAST','GRILL','LUNCH','SNACK','ORDER','STRAW',
-  'MAPLE','EXTRA','THICK','SPICY','VALUE','ROLLS','SERVE','DOUGH','MEALS','BITES',
-  'SIDES','MENUS','COMBO','ONION','WHEAT','FRESH','SALAD','FRIED','WRAPS','JUICE',
-  'STAFF','STORE','BRAND','DEALS','PROMO','KIOSK','GUEST','BOOTH','DRINK','SMILE',
-  'SUPER','COCOA','CHEWY','DAIRY','CRUST','BEEFY','TASTY','MOCHA','COLAS','DRIVE',
-  'CLEAN','QUICK','DAILY',
-
-  // ── Service Delivery, Operations & Project Management ─────────────────────
-  'AGENT','AGILE','ALERT','ALIGN','AUDIT','BATCH','BUILD','CALLS','CHAIN','CHART',
-  'CHECK','CHIEF','CLAIM','CLEAR','CLOSE','CLOUD','CYCLE','DEBUG','DELTA','DEPOT',
-  'DRAFT','EMAIL','ENTRY','EVENT','FAULT','FIELD','FINAL','FIXED','FLASH','FLEET',
-  'FOCUS','FORCE','FORUM','FRAME','FRONT','GAUGE','GOALS','GRADE','GRAPH','GUARD',
-  'GUIDE','INDEX','INPUT','INTEL','ISSUE','ITEMS','JUDGE','LAYER','LEADS','LEARN',
-  'LEGAL','LEVEL','LIMIT','LINKS','LOCAL','LOGIC','MACRO','MAJOR','MATCH','MEDIA',
-  'MERGE','MICRO','MODEL','NOTCH','OFFER','ONSET','OUTER','PATCH','PAUSE','PHASE',
-  'PHONE','PILOT','PLACE','PLANS','POINT','POWER','PRESS','PRIME','PRIOR','PROBE',
-  'PROOF','PROXY','PULSE','QUERY','QUEUE','RADAR','RAISE','RALLY','RANGE','RAPID',
-  'RATIO','REACH','READY','REFER','RELAY','RISKS','ROBOT','ROLES','ROUTE','RULES',
-  'SCALE','SCOPE','SCOUT','SCRUM','SETUP','SHIFT','SKILL','SLATE','SMART','SOLID',
-  'SOLVE','SPEED','SPLIT','STAGE','START','STATE','STATS','STEPS','STORM','SURGE',
-  'SWIFT','TABLE','TASKS','TEAMS','THEME','TIMER','TOOLS','TOTAL','TOUCH','TRACE',
-  'TRACK','TRAIN','TRAIT','TREND','TRIAL','TRUST','TRUTH','UNITY','USAGE','VAULT',
-  'VITAL','VOICE','WATCH','WORTH','YIELD','ZONES','PIVOT','RETRO','STORY','BLOCK',
-  'SPIKE','OWNER','STAND','BRIEF','INBOX','REPLY','FLAGS','NOTES','LANES','SPACE',
+  // ── McDonald's ─────────────────────────────────────────────────────────────
+  { word: 'FRIES', hint: 'Golden and crispy, served in every size' },
+  { word: 'SHAKE', hint: 'Cold, thick, and comes in three classic flavors' },
+  { word: 'SAUCE', hint: 'The secret behind every great dip or burger' },
+  { word: 'HAPPY', hint: 'A famous meal named after a feeling' },
+  { word: 'KIOSK', hint: 'The self-service stand replacing the counter queue' },
+  { word: 'BACON', hint: 'Smoky strips that upgrade any sandwich' },
+  { word: 'SUGAR', hint: 'The sweet ingredient behind every McCafé treat' },
 
   // ── Accounting & Finance ───────────────────────────────────────────────────
-  'ASSET','BILLS','BONDS','BOOKS','COSTS','DEBTS','DEBIT','FLOAT','FOREX','FUNDS',
-  'GAINS','GRANT','GROSS','HEDGE','LEDGE','LOANS','OWING','PETTY','QUOTA','RATES',
-  'RECON','REMIT','REPAY','SHEET','SPEND','STAKE','TALLY','TAXES','TERMS','WRITE',
-  'AMEND','QUOTE','PRICE','MONTH','PAYEE','STOCK','SALES','FILED',
+  { word: 'DEBIT', hint: 'Money leaving an account — the opposite of credit' },
+  { word: 'AUDIT', hint: 'An official inspection of financial records' },
+  { word: 'REMIT', hint: 'To send or transfer payment to another party' },
+  { word: 'GROSS', hint: 'The total amount before any deductions' },
+  { word: 'TRADE', hint: 'The exchange of goods, services, or assets' },
+  { word: 'ASSET', hint: 'Anything of value that a company owns' },
+  { word: 'YIELD', hint: 'The return generated from an investment' },
+  { word: 'CLOSE', hint: 'When a financial period or deal comes to an end' },
+  { word: 'ENTRY', hint: 'A single recorded line in the financial books' },
+  { word: 'TAXES', hint: 'What every company pays to the government on earnings' },
+
+  // ── Service Delivery & Project Management ─────────────────────────────────
+  { word: 'WAVES', hint: 'How the global rollout is being phased across markets' },
+  { word: 'SCOPE', hint: "Defines what's in — and out — of a project" },
+  { word: 'PHASE', hint: 'A defined stage in the project lifecycle' },
 ];
 
 const GAME_DURATION = 300;
 
 let gameState = {
   word: '',
+  hint: '',
   phase: 'waiting', // 'waiting' | 'playing' | 'leaderboard'
   timeLeft: GAME_DURATION,
   players: {},
@@ -111,7 +105,9 @@ function broadcastPlayerList() {
 
 function resetToWaiting() {
   clearInterval(timerInterval);
-  gameState.word = pickWord();
+  const picked = pickWord();
+  gameState.word = picked.word;
+  gameState.hint = picked.hint;
   gameState.phase = 'waiting';
   gameState.timeLeft = GAME_DURATION;
   gameState.gameId++;
@@ -135,7 +131,7 @@ function startGame() {
   gameState.gms.forEach(gmId => {
     io.to(gmId).emit('gm-word-reveal', { word: gameState.word });
   });
-  io.emit('game-started', { gameId: gameState.gameId });
+  io.emit('game-started', { gameId: gameState.gameId, hint: gameState.hint });
   timerInterval = setInterval(() => {
     if (gameState.phase !== 'playing') return;
     gameState.timeLeft--;
@@ -154,7 +150,8 @@ io.on('connection', (socket) => {
     socket.emit('game-state', {
       phase: gameState.phase,
       timeLeft: gameState.timeLeft,
-      gameId: gameState.gameId
+      gameId: gameState.gameId,
+      hint: gameState.phase === 'playing' ? gameState.hint : null
     });
     if (gameState.phase === 'leaderboard') {
       socket.emit('game-over', { leaderboard: getLeaderboard(), word: gameState.word });
@@ -236,7 +233,9 @@ io.on('connection', (socket) => {
   });
 });
 
-gameState.word = pickWord();
+const initial = pickWord();
+gameState.word = initial.word;
+gameState.hint = initial.hint;
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
