@@ -11,26 +11,26 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ── Word bank with subtle hints ───────────────────────────────────
 const WORD_BANK = [
-  { word: 'FRIES', hint: 'Ask for these on the side — they always disappear first' },
-  { word: 'SHAKE', hint: 'You will need a straw, not a spoon, for this one' },
-  { word: 'SAUCE', hint: 'The finishing touch that ties the whole meal together' },
-  { word: 'HAPPY', hint: 'Even the youngest customers get excited about this one' },
-  { word: 'KIOSK', hint: 'No cashier needed — just tap and wait' },
-  { word: 'BACON', hint: 'Always optional, always worth the upgrade' },
-  { word: 'SUGAR', hint: 'Hidden in every sweet sip at McCafe' },
-  { word: 'DEBIT', hint: 'Left side of the T — money flows out' },
-  { word: 'AUDIT', hint: 'The process nobody schedules but everyone prepares for' },
-  { word: 'REMIT', hint: 'Settling up with the party on the other end' },
-  { word: 'GROSS', hint: 'The number before deductions shrink it down' },
-  { word: 'TRADE', hint: 'What moves between borders when businesses deal' },
-  { word: 'ASSET', hint: 'Sits on the left side of the balance sheet' },
-  { word: 'YIELD', hint: 'What investors are watching at end of quarter' },
-  { word: 'CLOSE', hint: 'The month-end process no one wants to rush' },
-  { word: 'ENTRY', hint: 'Every journal starts with one of these' },
-  { word: 'TAXES', hint: "Every company's least favorite line item" },
-  { word: 'WAVES', hint: 'The rollout did not happen all at once' },
-  { word: 'SCOPE', hint: 'First thing defined, first thing to creep' },
-  { word: 'PHASE', hint: 'Before the next begins, this one must end' }
+  { word: 'FRIES', hint: "What Idaho does best, what the Golden Arches sells most" },
+  { word: 'SHAKE', hint: "Dairy meets dessert — requires a straw, not a spoon" },
+  { word: 'SAUCE', hint: "The unsung hero of any combo meal" },
+  { word: 'HAPPY', hint: "A box, a toy, and a smile" },
+  { word: 'KIOSK', hint: "The machine that cut the line" },
+  { word: 'BACON', hint: "Sizzles before it hits the bun" },
+  { word: 'SUGAR', hint: "Hiding in plain sight on every nutrition label" },
+  { word: 'DEBIT', hint: "Dr. on the left — ask your accountant" },
+  { word: 'AUDIT', hint: "What happens when trust alone is not enough" },
+  { word: 'REMIT', hint: "Wire it, send it, settle it" },
+  { word: 'GROSS', hint: "The headline number before the fine print" },
+  { word: 'TRADE', hint: "What moves between ports and borders" },
+  { word: 'ASSET', hint: "What survives on the balance sheet long-term" },
+  { word: 'YIELD', hint: "The reward for patience and risk" },
+  { word: 'CLOSE', hint: "What the finance team races to finish by the 5th" },
+  { word: 'ENTRY', hint: "Dr. Cash, Cr. Revenue — just one of these" },
+  { word: 'TAXES', hint: "Certain as death — Ben Franklin said so" },
+  { word: 'WAVES', hint: "How a global launch gets sequenced" },
+  { word: 'SCOPE', hint: "The first casualty of stakeholder requests" },
+  { word: 'PHASE', hint: "Has a gate at the end, not a door" }
 ];
 
 const GAME_DURATION = 300;
