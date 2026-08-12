@@ -199,7 +199,7 @@ io.on('connection', (socket) => {
 
 const entry = pickEntry(); gameState.word = entry.word; gameState.hint = entry.hint;
 
-const PORT = process.env.PORT || 3000;
+const PORT = 8080;
 server.listen(PORT, '0.0.0.0', () => {
   const nets = require('os').networkInterfaces();
   let localIP = 'YOUR_IP';
