@@ -52,9 +52,9 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--b
 .join-logo { text-align: center; }
 .logo-badge {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 64px; height: 64px; background: var(--red); border-radius: 16px;
-  font-size: 1.1rem; font-weight: 900; color: white; margin-bottom: 14px;
-  box-shadow: 0 4px 20px rgba(218,41,28,0.4); letter-spacing: 0.04em;
+  width: 64px; height: 64px; background: var(--gold); border-radius: 16px;
+  font-size: 0.9rem; font-weight: 900; color: #1C1A17; margin-bottom: 14px;
+  box-shadow: 0 4px 20px rgba(255,188,13,0.5); letter-spacing: 0.04em;
 }
 .join-logo h1 { font-size: 1rem; font-weight: 800; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; }
 .tagline { margin-top: 8px; font-size: 0.88rem; color: var(--text-muted); }
@@ -103,7 +103,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--b
 }
 .lobby-header { display: flex; align-items: center; justify-content: space-between; }
 .lobby-brand  { display: flex; align-items: center; gap: 14px; }
-.logo-sm { width: 44px !important; height: 44px !important; font-size: 1rem !important; }
+.logo-sm { width: 44px !important; height: 44px !important; font-size: 0.8rem !important; }
 .lobby-title { font-size: 1.8rem; font-weight: 900; letter-spacing: 0.08em; color: white; margin: 0; }
 .lobby-sub { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
 .lobby-stat-row { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
@@ -135,11 +135,11 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--b
 }
 .header-brand { display: flex; align-items: center; gap: 12px; }
 .header-logo {
-  width: 40px; height: 40px; background: var(--red); border-radius: 10px;
+  width: 40px; height: 40px; background: var(--gold); border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.72rem; font-weight: 900; color: white; flex-shrink: 0; letter-spacing: 0.04em;
+  font-size: 0.65rem; font-weight: 900; color: #1C1A17; flex-shrink: 0; letter-spacing: 0.04em;
 }
-.header-title { font-size: 0.9rem; font-weight: 900; letter-spacing: 0.1em; color: white; }
+.header-title { font-size: 0.72rem; font-weight: 900; letter-spacing: 0.08em; color: white; }
 .header-incident { font-size: 0.65rem; font-weight: 700; color: var(--gold); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 1px; }
 .header-timer-wrap { text-align: center; flex-shrink: 0; }
 .timer-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; }
