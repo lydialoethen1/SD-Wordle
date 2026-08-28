@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SD WORDLE — Game Master</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    body { overflow: auto; }
+    .gm-page {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-start;
+      background: radial-gradient(ellipse at 60% 30%, #0f2a52 0%, #0b1426 70%);
+      padding: 20px 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="gm-page">
+    <div class="gm-wrap">
+
+      <div class="gm-header">
+        <div class="logo-badge logo-sm">SD</div>
+        <div>
+          <h1 class="gm-title">GAME MASTER</h1>
+          <p class="gm-sub">Service Delivery Wordle Control Panel</p>
+        </div>
+        <div id="gm-phase-badge" class="gm-phase-badge gm-phase-waiting">LOBBY</div>
+      </div>
+
+      <div class="gm-stats-row">
+        <div class="gm-stat">
+          <span class="gm-stat-num" id="gm-player-count">0</span>
+          <span class="gm-stat-label">Players</span>
+        </div>
+        <div class="gm-stat">
+          <span class="gm-stat-num" id="gm-solved-count">0</span>
+          <span class="gm-stat-label">Solved</span>
+        </div>
+        <div class="gm-stat">
+          <span class="gm-stat-num" id="gm-timer-val">5:00</span>
+          <span class="gm-stat-label">Time Left</span>
+        </div>
+      </div>
+
+      <div class="gm-word-panel">
+        <span id="gm-word-label" style="font-size:0.85rem;color:var(--text-muted)">Word will appear here when game starts</span>
+        <span id="gm-word" class="gm-word-text"></span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);display:flex;align-items:center;gap:6px">
+          Players
+          <span id="gm-count-badge" style="padding:2px 8px;background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:999px;color:var(--gold);font-size:0.65rem;font-weight:800">0</span>
+        </div>
+        <div id="gm-player-list" class="gm-player-list">
+          <div style="font-size:0.82rem;color:var(--text-muted);text-align:center;padding:16px">No players yet — share the game URL</div>
+        </div>
+      </div>
+
+      <div class="gm-controls">
+        <button id="gm-start-btn" class="btn-start">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Start Incident
+        </button>
+        <button id="gm-end-btn" class="btn-danger hidden">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"/></svg>
+          End Game Early
+        </button>
+        <button id="gm-new-btn" class="btn-secondary hidden">New Round</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- LEADERBOARD OVERLAY -->
+  <div id="leaderboard-overlay" class="overlay hidden">
+    <div class="lb-card">
+      <div class="lb-header">
+        <div class="lb-icon">🏆</div>
+        <h2>Incident Closed</h2>
+        <p class="lb-subtitle">SLA Expired — Top Resolvers</p>
+        <div class="lb-word-reveal">The keyword was: <span id="revealed-word" class="lb-word"></span></div>
+      </div>
+      <div id="leaderboard-list" class="lb-list"></div>
+      <div class="lb-footer" style="display:flex;gap:10px">
+        <button id="gm-lb-new-btn" class="btn-deploy" style="flex:1;padding:13px;justify-content:center">New Round</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, set, get, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    // ── PASTE YOUR FIREBASE CONFIG HERE (same config as index.html) ──
+    const firebaseConfig = {
+      apiKey: "PASTE_HERE",
+      authDomain: "PASTE_HERE",
+      databaseURL: "PASTE_HERE",
+      projectId: "PASTE_HERE",
+      storageBucket: "PASTE_HERE",
+      messagingSenderId: "PASTE_HERE",
+      appId: "PASTE_HERE"
+    };
+    // ─────────────────────────────────────────────────────────────────
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getDatabase(app);
+
+    const $ = id => document.getElementById(id);
+    const TOTAL_TIME = 300;
+
+    const WORD_BANK = [
+      { word:'FRIES', hint:"What Idaho does best, what the Golden Arches sells most" },
+      { word:'SHAKE', hint:"Dairy meets dessert — requires a straw, not a spoon" },
+      { word:'SAUCE', hint:"The unsung hero of any combo meal" },
+      { word:'HAPPY', hint:"A box, a toy, and a smile" },
+      { word:'KIOSK', hint:"The machine that cut the line" },
+      { word:'BACON', hint:"Sizzles before it hits the bun" },
+      { word:'SUGAR', hint:"Hiding in plain sight on every nutrition label" },
+      { word:'DEBIT', hint:"Dr. on the left — ask your accountant" },
+      { word:'AUDIT', hint:"What happens when trust alone is not enough" },
+      { word:'REMIT', hint:"Wire it, send it, settle it" },
+      { word:'GROSS', hint:"The headline number before the fine print" },
+      { word:'TRADE', hint:"What moves between ports and borders" },
+      { word:'ASSET', hint:"What survives on the balance sheet long-term" },
+      { word:'YIELD', hint:"The reward for patience and risk" },
+      { word:'CLOSE', hint:"What the finance team races to finish by the 5th" },
+      { word:'ENTRY', hint:"Dr. Cash, Cr. Revenue — just one of these" },
+      { word:'TAXES', hint:"Certain as death — Ben Franklin said so" },
+      { word:'WAVES', hint:"How a global launch gets sequenced" },
+      { word:'SCOPE', hint:"The first casualty of stakeholder requests" },
+      { word:'PHASE', hint:"Has a gate at the end, not a door" }
+    ];
+
+    function pickEntry() { return WORD_BANK[Math.floor(Math.random()*WORD_BANK.length)]; }
+    function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    let currentPhase = 'waiting';
+    let currentGameId = 1;
+    let currentWord = '';
+    let timerInterval = null;
+    let currentPlayers = {};
+
+    function setPhase(phase) {
+      currentPhase = phase;
+      const labels = {waiting:'LOBBY',playing:'IN PROGRESS',leaderboard:'GAME OVER'};
+      $('gm-phase-badge').textContent = labels[phase]||phase.toUpperCase();
+      $('gm-phase-badge').className = 'gm-phase-badge gm-phase-'+phase;
+      $('gm-start-btn').classList.toggle('hidden', phase!=='waiting');
+      $('gm-end-btn').classList.toggle('hidden',   phase!=='playing');
+      $('gm-new-btn').classList.toggle('hidden',   phase!=='leaderboard');
+    }
+
+    function updateGMTimer(secs) {
+      const m=Math.floor(secs/60), s=String(secs%60).padStart(2,'0');
+      $('gm-timer-val').textContent = m+':'+s;
+    }
+
+    function renderPlayers(players) {
+      const list = Object.values(players||{}).filter(p=>p.gameId===currentGameId);
+      $('gm-player-count').textContent = list.length;
+      $('gm-count-badge').textContent  = list.length;
+      $('gm-solved-count').textContent = list.filter(p=>p.solved).length;
+      if(!list.length){
+        $('gm-player-list').innerHTML='<div style="font-size:0.82rem;color:var(--text-muted);text-align:center;padding:16px">No players yet — share the game URL</div>';
+        return;
+      }
+      $('gm-player-list').innerHTML = list.map(p=>{
+        const cls=p.solved?' gm-solved':p.failed?' gm-failed':'';
+        const icon=p.solved?'✓':p.failed?'✗':'…';
+        const guesses=p.numGuesses>0?p.numGuesses+' guess'+(p.numGuesses!==1?'es':''):'—';
+        return '<div class="gm-player-row'+cls+'"><span class="gm-p-icon">'+icon+'</span><span class="gm-p-name">'+esc(p.name)+'</span><span class="gm-p-guesses">'+guesses+'</span></div>';
+      }).join('');
+    }
+
+    function showLeaderboard(word, players) {
+      $('revealed-word').textContent = word;
+      const lb=$('leaderboard-list'); lb.innerHTML='';
+      const list=Object.values(players||{}).filter(p=>p.gameId===currentGameId);
+      const top5=[...list.filter(p=>p.solved).sort((a,b)=>b.score-a.score),...list.filter(p=>!p.solved)].slice(0,5);
+      if(!top5.length){lb.innerHTML='<p style="text-align:center;color:var(--text-muted);padding:16px">No agents participated</p>';return;}
+      top5.forEach((p,i)=>{
+        const rank=i+1,el=document.createElement('div');
+        el.className='lb-entry rank-'+rank+(p.solved?'':' lb-unsolved');
+        const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':String(rank);
+        const t=p.solved&&p.solveTime!=null?Math.floor(p.solveTime/60)+':'+String(p.solveTime%60).padStart(2,'0'):'—';
+        el.innerHTML='<div class="lb-rank">'+medal+'</div><div class="lb-name">'+esc(p.name)+'</div>'
+          +'<div class="lb-details"><div class="lb-score">'+(p.solved?p.score.toLocaleString():'—')+'</div>'
+          +'<div class="lb-meta">'+(p.solved?p.numGuesses+' guess'+(p.numGuesses!==1?'es':'')+' · '+t:'Ticket Escalated')+'</div></div>';
+        lb.appendChild(el);
+      });
+      $('leaderboard-overlay').classList.remove('hidden');
+    }
+
+    function stopTimer(){clearInterval(timerInterval);timerInterval=null;}
+
+    async function startGame() {
+      if(currentPhase!=='waiting') return;
+      $('gm-start-btn').disabled=true;
+      const entry=pickEntry();
+      currentWord=entry.word;
+      $('gm-word').textContent=entry.word;
+      $('gm-word-label').textContent='The word is:';
+      let timeLeft=TOTAL_TIME;
+      setPhase('playing');
+      await update(ref(db,'sdwordle/session'),{
+        phase:'playing',word:entry.word,hint:entry.hint,timeLeft,gameId:currentGameId,
+        lastSolvedKey:null,lastSolvedName:null,lastSolvedGuesses:null
+      });
+      timerInterval=setInterval(async()=>{
+        timeLeft--;
+        updateGMTimer(timeLeft);
+        await update(ref(db,'sdwordle/session'),{timeLeft});
+        if(timeLeft<=0){stopTimer();await endGame();}
+      },1000);
+    }
+
+    async function endGame() {
+      if(currentPhase==='leaderboard') return;
+      stopTimer();
+      setPhase('leaderboard');
+      await update(ref(db,'sdwordle/session'),{phase:'leaderboard'});
+      showLeaderboard(currentWord, currentPlayers);
+    }
+
+    async function newRound() {
+      stopTimer();
+      currentGameId++;
+      currentWord='';
+      $('gm-word').textContent='';
+      $('gm-word-label').textContent='Word will appear here when game starts';
+      $('gm-start-btn').disabled=false;
+      setPhase('waiting');
+      $('leaderboard-overlay').classList.add('hidden');
+      await set(ref(db,'sdwordle/session'),{
+        phase:'waiting',word:'',hint:'',timeLeft:TOTAL_TIME,gameId:currentGameId,
+        lastSolvedKey:null,lastSolvedName:null,lastSolvedGuesses:null
+      });
+      await remove(ref(db,'sdwordle/players'));
+      updateGMTimer(TOTAL_TIME);
+    }
+
+    // Listen for player updates
+    onValue(ref(db,'sdwordle/players'),snap=>{
+      currentPlayers=snap.val()||{};
+      renderPlayers(currentPlayers);
+    });
+
+    // Initialize from existing session state
+    get(ref(db,'sdwordle/session')).then(snap=>{
+      const s=snap.val();
+      if(s){
+        currentGameId=s.gameId||1;
+        currentWord=s.word||'';
+        setPhase(s.phase||'waiting');
+        updateGMTimer(s.timeLeft||TOTAL_TIME);
+        if(s.word){
+          $('gm-word').textContent=s.word;
+          $('gm-word-label').textContent='The word is:';
+        }
+        if(s.phase==='playing'){
+          // Resume timer ownership
+          let timeLeft=s.timeLeft||0;
+          timerInterval=setInterval(async()=>{
+            timeLeft--;
+            updateGMTimer(timeLeft);
+            await update(ref(db,'sdwordle/session'),{timeLeft});
+            if(timeLeft<=0){stopTimer();await endGame();}
+          },1000);
+        }
+      } else {
+        set(ref(db,'sdwordle/session'),{
+          phase:'waiting',word:'',hint:'',timeLeft:TOTAL_TIME,gameId:1,
+          lastSolvedKey:null,lastSolvedName:null,lastSolvedGuesses:null
+        });
+      }
+    });
+
+    $('gm-start-btn').addEventListener('click', startGame);
+    $('gm-end-btn').addEventListener('click', ()=>{if(confirm('End the game and show the leaderboard to all players?'))endGame();});
+    $('gm-new-btn').addEventListener('click', newRound);
+    $('gm-lb-new-btn').addEventListener('click', newRound);
+  </script>
+</body>
+</html>
