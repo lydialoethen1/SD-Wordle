@@ -84,11 +84,10 @@
         </span>
         <div>
           <div class="header-title">SERVICE DELIVERY WORDLE</div>
-          <div class="header-incident" id="incident-label">Incident #001</div>
         </div>
       </div>
       <div class="header-timer-wrap">
-        <div class="timer-label">SLA COUNTDOWN</div>
+        <div class="timer-label">COUNTDOWN</div>
         <div id="timer" class="timer-value">5:00</div>
         <div class="timer-bar-track"><div id="timer-bar" class="timer-bar"></div></div>
       </div>
@@ -98,7 +97,7 @@
           <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
         </svg>
         <span id="player-count">0</span>
-        <span class="agents-label">AGENTS</span>
+        <span class="agents-label">PLAYERS</span>
       </div>
     </header>
 
@@ -185,7 +184,7 @@
       $('lobby-count').textContent = list.length;
       $('lobby-status').textContent = list.length <= 1
         ? 'Share this link with your team!'
-        : list.length + ' agents deployed and standing by';
+        : list.length + ' players joined and standing by';
       $('lobby-players').innerHTML = list.map(p =>
         '<div class="player-chip"><span>' + esc(p.name) + '</span></div>'
       ).join('');
@@ -413,7 +412,7 @@
         showScreen('lobby-screen'); lastPhase='waiting';
       } else if(session.phase==='playing'){
         resetBoard(); showHint(session.hint);
-        $('incident-label').textContent='Incident #'+String(session.gameId).padStart(3,'0');
+        // $('incident-label').textContent='Incident #'+String(session.gameId).padStart(3,'0');
         updateTimer(session.timeLeft||0);
         showScreen('game-screen'); lastPhase='playing';
         toast('Game in progress — jump in!');
@@ -425,7 +424,7 @@
         const s=snap.val(); if(!s) return;
         const prevPhase=lastPhase;
         currentWord=s.word||''; currentHint=s.hint||'';
-        $('incident-label').textContent='Incident #'+String(s.gameId||1).padStart(3,'0');
+        // $('incident-label').textContent='Incident #'+String(s.gameId||1).padStart(3,'0');
         updateTimer(s.timeLeft||0);
 
         if(s.lastSolvedKey&&s.lastSolvedKey!==lastSolvedKey&&s.lastSolvedName!==playerName){

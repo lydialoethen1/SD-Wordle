@@ -119,26 +119,28 @@
     const TOTAL_TIME = 300;
 
     const WORD_BANK = [
-      { word:'FRIES', hint:"What Idaho does best, what the Golden Arches sells most" },
-      { word:'SHAKE', hint:"Dairy meets dessert — requires a straw, not a spoon" },
-      { word:'SAUCE', hint:"The unsung hero of any combo meal" },
-      { word:'HAPPY', hint:"A box, a toy, and a smile" },
-      { word:'KIOSK', hint:"The machine that cut the line" },
-      { word:'BACON', hint:"Sizzles before it hits the bun" },
-      { word:'SUGAR', hint:"Hiding in plain sight on every nutrition label" },
-      { word:'DEBIT', hint:"Dr. on the left — ask your accountant" },
-      { word:'AUDIT', hint:"What happens when trust alone is not enough" },
-      { word:'REMIT', hint:"Wire it, send it, settle it" },
-      { word:'GROSS', hint:"The headline number before the fine print" },
-      { word:'TRADE', hint:"What moves between ports and borders" },
-      { word:'ASSET', hint:"What survives on the balance sheet long-term" },
-      { word:'YIELD', hint:"The reward for patience and risk" },
-      { word:'CLOSE', hint:"What the finance team races to finish by the 5th" },
-      { word:'ENTRY', hint:"Dr. Cash, Cr. Revenue — just one of these" },
-      { word:'TAXES', hint:"Certain as death — Ben Franklin said so" },
-      { word:'WAVES', hint:"How a global launch gets sequenced" },
-      { word:'SCOPE', hint:"The first casualty of stakeholder requests" },
-      { word:'PHASE', hint:"Has a gate at the end, not a door" }
+      // McDonald's themed
+      { word:'FRIES', hint:"Golden, salty, and gone before you reach the car" },
+      { word:'SHAKE', hint:"Thick enough to eat with a spoon, ordered with a straw" },
+      { word:'BACON', hint:"It sizzles. It strips. It upgrades every burger." },
+      { word:'HAPPY', hint:"The Meal with a toy — for ages 12 and under (or over)" },
+      { word:'SAUCE', hint:"Big Mac's secret. The rest is just bread and beef." },
+      { word:'APPLE', hint:"McD's simplest dessert: warm, golden, and under two bucks" },
+      { word:'RANCH', hint:"The dipping sauce that goes with every nugget, every time" },
+      { word:'LATTE', hint:"McCafe's morning staple — espresso meets steamed milk" },
+      { word:'COMBO', hint:"Pick your number — the fries and drink are included" },
+      { word:'DRIVE', hint:"The lane that handles the majority of McD's daily orders" },
+      // Finance / Accounting themed
+      { word:'DEBIT', hint:"Left side of the T-account — Dr., for short" },
+      { word:'AUDIT', hint:"What happens when finance says 'trust but verify'" },
+      { word:'ASSET', hint:"Fixed, long-lived, and depreciating — CIP before it's complete" },
+      { word:'ENTRY', hint:"Every transaction starts here: Dr. this, Cr. that" },
+      { word:'CLOSE', hint:"The month-end finish line the SD team knows well" },
+      { word:'TAXES', hint:"Certain as death, filed quarterly, hated universally" },
+      { word:'REMIT', hint:"Wire it, send it, settle it — zero balance due" },
+      { word:'GROSS', hint:"The revenue line before any deductions touch it" },
+      { word:'YIELD', hint:"The return on investment — what finance lives for" },
+      { word:'FIXED', hint:"The kind of asset that stays put and slowly depreciates" }
     ];
 
     function pickEntry() { return WORD_BANK[Math.floor(Math.random()*WORD_BANK.length)]; }
