@@ -29,6 +29,7 @@
 }
 
 html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
+h1, h2, .btn-deploy, .btn-start, .lobby-title, .header-title, .gm-title, .join-logo h1, .tagline, .lobby-count-num { font-family: 'Nunito', 'Inter', sans-serif; }
 
 .screen { display: none; width: 100%; height: 100vh; }
 .screen.active { display: flex; }
@@ -51,16 +52,16 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--b
 .join-logo { text-align: center; }
 .logo-badge {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 64px; height: 64px; background: var(--red); border-radius: 16px;
-  margin-bottom: 14px;
-  box-shadow: 0 4px 20px rgba(218,41,28,0.4);
+  width: 88px; height: 88px; background: var(--red); border-radius: 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 6px 28px rgba(218,41,28,0.45);
 }
 .logo-badge-gold {
   background: var(--gold) !important;
   box-shadow: 0 4px 20px rgba(255,188,13,0.4) !important;
 }
-.join-logo h1 { font-size: 1rem; font-weight: 800; letter-spacing: 0.1em; color: #53565A; text-transform: uppercase; }
-.tagline { margin-top: 8px; font-size: 0.88rem; color: #53565A; }
+.join-logo h1 { font-size: 1.4rem; font-weight: 900; letter-spacing: 0.06em; color: #1C1A17; text-transform: uppercase; }
+.tagline { margin-top: 6px; font-size: 0.95rem; font-weight: 700; color: #53565A; }
 
 .rules-chips { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 .chip { padding: 5px 14px; border: 1px solid #D0C8C0; border-radius: 999px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: #53565A; text-transform: uppercase; }
@@ -78,12 +79,13 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--b
 
 .btn-deploy {
   display: flex; align-items: center; justify-content: center; gap: 10px;
-  padding: 15px 28px; background: var(--gold); border: none; border-radius: 10px;
-  color: #1C1A17; font-size: 1rem; font-weight: 800; font-family: inherit;
+  padding: 16px 28px; background: var(--red); border: none; border-radius: 999px;
+  color: white; font-size: 1.1rem; font-weight: 900; font-family: 'Nunito', inherit;
   cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
-  box-shadow: 0 4px 20px rgba(255,188,13,0.3);
+  box-shadow: 0 4px 20px rgba(218,41,28,0.4);
+  letter-spacing: 0.02em;
 }
-.btn-deploy:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(255,188,13,0.45); }
+.btn-deploy:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(218,41,28,0.55); }
 .btn-deploy:active { transform: translateY(0); }
 .btn-deploy:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
@@ -135,9 +137,10 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--b
 #game-screen { flex-direction: column; align-items: center; background: var(--bg); overflow: hidden; }
 
 .game-header {
-  width: 100%; max-width: 620px; display: flex; align-items: center;
-  justify-content: space-between; padding: 14px 20px;
-  border-bottom: 1px solid var(--border); gap: 12px; flex-shrink: 0;
+  width: 100%; display: flex; align-items: center;
+  justify-content: space-between; padding: 14px 24px;
+  background: var(--red); border-bottom: 4px solid var(--gold);
+  gap: 12px; flex-shrink: 0;
 }
 .header-brand { display: flex; align-items: center; gap: 12px; }
 .header-logo {
@@ -145,19 +148,19 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--b
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
-.header-title { font-size: 0.72rem; font-weight: 900; letter-spacing: 0.08em; color: white; }
+.header-title { font-size: 0.82rem; font-weight: 900; letter-spacing: 0.06em; color: white; }
 .header-incident { font-size: 0.65rem; font-weight: 700; color: var(--gold); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 1px; }
 .header-timer-wrap { text-align: center; flex-shrink: 0; }
-.timer-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; }
+.timer-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; color: rgba(255,255,255,0.65); text-transform: uppercase; margin-bottom: 2px; }
 .timer-value { font-size: 1.8rem; font-weight: 900; letter-spacing: 0.04em; color: var(--green); transition: color 0.5s; font-variant-numeric: tabular-nums; }
 .timer-value.warning { color: var(--gold); }
 .timer-value.danger  { color: var(--red); animation: blink 1s infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.5} }
 .timer-bar-track { margin-top: 4px; width: 120px; height: 4px; background: var(--bg3); border-radius: 999px; overflow: hidden; }
 .timer-bar { height: 100%; width: 100%; background: var(--green); border-radius: 999px; transition: width 1s linear, background-color 0.5s; }
-.header-agents { display: flex; align-items: center; gap: 5px; color: var(--text-muted); flex-shrink: 0; }
-.header-agents span { font-size: 1.1rem; font-weight: 800; color: var(--text); }
-.agents-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; }
+.header-agents { display: flex; align-items: center; gap: 5px; color: rgba(255,255,255,0.7); flex-shrink: 0; }
+.header-agents span { font-size: 1.1rem; font-weight: 800; color: white; }
+.agents-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; color: rgba(255,255,255,0.7); text-transform: uppercase; }
 
 .hint-banner {
   display: flex; align-items: center; gap: 8px; width: 100%; max-width: 620px;
