@@ -157,10 +157,10 @@
     const $ = id => document.getElementById(id);
     const TOTAL_TIME = 300, ROWS = 6, COLS = 5;
 
-    let playerId = sessionStorage.getItem('sdw_pid');
+    let playerId = localStorage.getItem('sdw_pid');
     if (!playerId) {
       playerId = 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-      sessionStorage.setItem('sdw_pid', playerId);
+      localStorage.setItem('sdw_pid', playerId);
     }
 
     let playerName = '';

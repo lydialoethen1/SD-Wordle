@@ -299,7 +299,7 @@
     });
 
     $('gm-start-btn').addEventListener('click', startGame);
-    $('gm-end-btn').addEventListener('click', ()=>{if(confirm('End the game and show the leaderboard to all players?'))endGame();});
+    $('gm-end-btn').addEventListener('click', ()=>endGame());
     $('gm-new-btn').addEventListener('click', newRound);
     $('gm-lb-new-btn').addEventListener('click', newRound);
     $('gm-clear-btn').addEventListener('click', async()=>{
