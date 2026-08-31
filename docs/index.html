@@ -145,6 +145,17 @@
       <div id="grid" class="grid"></div>
       <div id="keyboard" class="keyboard"></div>
     </div>
+
+    <!-- Live mini-leaderboard -->
+    <div id="live-lb" class="live-lb">
+      <div class="live-lb-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        LIVE TOP 3
+      </div>
+      <div id="live-lb-list" class="live-lb-list">
+        <p class="live-lb-empty">No solvers yet</p>
+      </div>
+    </div>
   </div>
 
   <!-- LEADERBOARD OVERLAY -->
@@ -352,6 +363,30 @@
       });
     }
 
+    function updateLiveLB(players) {
+      const solvers = Object.values(players||{})
+        .filter(p => p.gameId === currentGameId && p.solved)
+        .sort((a,b) => b.score - a.score)
+        .slice(0, 3);
+      const list = $('live-lb-list');
+      if (!solvers.length) {
+        list.innerHTML = '<p class="live-lb-empty">No solvers yet</p>';
+        return;
+      }
+      const medals = ['🥇','🥈','🥉'];
+      list.innerHTML = solvers.map((p,i) => {
+        const t = p.solveTime != null
+          ? Math.floor(p.solveTime/60)+':'+String(p.solveTime%60).padStart(2,'0')
+          : '—';
+        return '<div class="live-lb-entry">'
+          +'<span class="live-lb-medal">'+medals[i]+'</span>'
+          +'<div class="live-lb-info">'
+          +'<div class="live-lb-name">'+esc(p.name)+'</div>'
+          +'<div class="live-lb-meta">'+p.numGuesses+' guess'+(p.numGuesses!==1?'es':'')+' · '+t+'</div>'
+          +'</div></div>';
+      }).join('');
+    }
+
     function showLeaderboard(word, players) {
       $('revealed-word').textContent = word;
       const lb=$('leaderboard-list'); lb.innerHTML='';
@@ -513,6 +548,7 @@
       onValue(ref(db,'sdwordle/players'),snap=>{
         const players=snap.val()||{};
         updateLobby(players);
+        updateLiveLB(players);
         if(lastPhase==='leaderboard') showLeaderboard(currentWord,players);
       });
     }

@@ -351,4 +351,25 @@ h1, h2, .btn-deploy, .btn-start, .lobby-title, .header-title, .gm-title, .join-l
 @media (max-height: 750px) { .tile{width:50px;height:50px;font-size:1.5rem} .key{height:46px;font-size:0.72rem} .game-main{gap:12px} }
 @media (max-width: 400px)  { .tile{width:50px;height:50px;font-size:1.4rem} .key{min-width:32px;font-size:0.68rem} .key.wide{max-width:56px} .lb-card{padding:28px 20px 24px} }
 
+/* LIVE MINI-LEADERBOARD */
+.live-lb {
+  position: fixed; right: 16px; top: 50%; transform: translateY(-50%);
+  width: 168px; background: var(--bg2); border: 1px solid var(--gold-border);
+  border-radius: 12px; padding: 12px 14px; z-index: 20;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+.live-lb-title {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em;
+  color: var(--gold); margin-bottom: 10px; text-transform: uppercase;
+}
+.live-lb-list { display: flex; flex-direction: column; gap: 8px; }
+.live-lb-empty { font-size: 0.72rem; color: var(--text-muted); text-align: center; padding: 4px 0; }
+.live-lb-entry { display: flex; align-items: center; gap: 8px; }
+.live-lb-medal { font-size: 1.1rem; line-height: 1; flex-shrink: 0; }
+.live-lb-info { min-width: 0; }
+.live-lb-name { font-size: 0.78rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.live-lb-meta { font-size: 0.65rem; color: var(--text-muted); margin-top: 1px; }
+@media (max-width: 900px) { .live-lb { display: none; } }
+
 .hidden { display: none !important; }
