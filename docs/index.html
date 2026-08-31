@@ -379,8 +379,8 @@
 
     function handleKey(key) {
       if(gameOver||solved) return;
-      if(key==='Backspace'){if(currentCol>0){currentCol--;currentInput=currentInput.slice(0,-1);setTileLetter(currentRow,currentCol,'');}return;}
-      if(key==='Enter'){submitGuess();return;}
+      if(key==='Backspace'||key==='DEL'){if(currentCol>0){currentCol--;currentInput=currentInput.slice(0,-1);setTileLetter(currentRow,currentCol,'');}return;}
+      if(key==='Enter'||key==='ENTER'){submitGuess();return;}
       if(/^[A-Za-z]$/.test(key)&&currentCol<COLS){const l=key.toUpperCase();setTileLetter(currentRow,currentCol,l);currentInput+=l;currentCol++;}
     }
 
