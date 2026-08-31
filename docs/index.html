@@ -192,7 +192,17 @@
       'GRILL','APPLE','MEALS','STORE','SODAS','ASSET','DEBIT','AUDIT','TAXES','FUNDS','LEASE',
       'SALES','COSTS','GFMOD','ENTRY','CLOSE','CAPEX','CODES','CHART','TRIAL']);
 
-    let validating = false;
+    // Load the full ~14k Wordle valid-words list in the background at startup
+    let validWordSet = null;
+    (async () => {
+      try {
+        const r = await fetch('https://raw.githubusercontent.com/tabatkins/wordle-list/main/words');
+        const text = await r.text();
+        validWordSet = new Set(text.trim().split('\n').map(w => w.trim().toUpperCase()));
+        // Ensure all game vocab is included
+        GAME_VOCAB.forEach(w => validWordSet.add(w));
+      } catch { validWordSet = null; }
+    })();
 
     let playerId = localStorage.getItem('sdw_pid');
     if (!playerId) {
@@ -385,22 +395,13 @@
 
     function calcScore(numGuesses, solveTime) { return (7-numGuesses)*1000+Math.max(0,TOTAL_TIME-solveTime); }
 
-    async function submitGuess() {
-      if(gameOver||solved||!currentWord||validating) return;
+    function submitGuess() {
+      if(gameOver||solved||!currentWord) return;
       if(currentCol<COLS){shakeRow(currentRow);showStatus('Not enough letters','error');return;}
       const guess=currentInput;
 
-      if(!GAME_VOCAB.has(guess)) {
-        validating=true;
-        showStatus('Checking word…','',0);
-        try {
-          const r=await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/'+guess.toLowerCase());
-          if(!r.ok){
-            validating=false; $('status-msg').classList.add('hidden');
-            shakeRow(currentRow); showStatus('Not in word list','error'); return;
-          }
-        } catch { /* fail open if offline */ }
-        validating=false; $('status-msg').classList.add('hidden');
+      if(validWordSet && !validWordSet.has(guess)){
+        shakeRow(currentRow); showStatus('Not in word list','error'); return;
       }
 
       const result=checkGuess(guess,currentWord);
