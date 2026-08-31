@@ -37,10 +37,10 @@ h1, h2, .btn-deploy, .btn-start, .lobby-title, .header-title, .gm-title, .join-l
 /* JOIN SCREEN */
 #join-screen {
   align-items: center; justify-content: center; position: relative;
-  background-color: var(--red);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 78'%3E%3Cpath d='M6 82 L6 32 C6 5 44 5 44 32 L44 82 L36 82 L36 32 C36 15 14 15 14 32 L14 82 Z' fill='%23FFBC0D' opacity='.28'/%3E%3Cpath d='M56 82 L56 32 C56 5 94 5 94 32 L94 82 L86 82 L86 32 C86 15 64 15 64 32 L64 82 Z' fill='%23FFBC0D' opacity='.28'/%3E%3C/svg%3E");
+  background-color: var(--gold);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 75'%3E%3Cpath d='M2 82 L2 48 Q26 4 50 48 Q74 4 98 48 L98 82 L88 82 L88 56 Q74 18 50 56 Q26 18 12 56 L12 82 Z' fill='%23DA291C' opacity='.18'/%3E%3C/svg%3E");
   background-repeat: repeat;
-  background-size: 130px 101px;
+  background-size: 140px 105px;
 }
 .join-bg-grid { display: none; }
 .join-card {
@@ -100,10 +100,10 @@ h1, h2, .btn-deploy, .btn-start, .lobby-title, .header-title, .gm-title, .join-l
 /* LOBBY SCREEN */
 #lobby-screen {
   align-items: center; justify-content: center; position: relative;
-  background-color: var(--red);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 78'%3E%3Cpath d='M6 82 L6 32 C6 5 44 5 44 32 L44 82 L36 82 L36 32 C36 15 14 15 14 32 L14 82 Z' fill='%23FFBC0D' opacity='.28'/%3E%3Cpath d='M56 82 L56 32 C56 5 94 5 94 32 L94 82 L86 82 L86 32 C86 15 64 15 64 32 L64 82 Z' fill='%23FFBC0D' opacity='.28'/%3E%3C/svg%3E");
+  background-color: var(--gold);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 75'%3E%3Cpath d='M2 82 L2 48 Q26 4 50 48 Q74 4 98 48 L98 82 L88 82 L88 56 Q74 18 50 56 Q26 18 12 56 L12 82 Z' fill='%23DA291C' opacity='.18'/%3E%3C/svg%3E");
   background-repeat: repeat;
-  background-size: 130px 101px;
+  background-size: 140px 105px;
 }
 .lobby-wrap {
   position: relative; width: 100%; max-width: 700px; padding: 40px 36px;
@@ -112,25 +112,25 @@ h1, h2, .btn-deploy, .btn-start, .lobby-title, .header-title, .gm-title, .join-l
 .lobby-header { display: flex; align-items: center; justify-content: space-between; }
 .lobby-brand  { display: flex; align-items: center; gap: 14px; }
 .logo-sm { width: 44px !important; height: 44px !important; }
-.lobby-title { font-size: 1.8rem; font-weight: 900; letter-spacing: 0.08em; color: white; margin: 0; }
-.lobby-sub { font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,0.65); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
-.lobby-stat-row { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.2); }
+.lobby-title { font-size: 1.8rem; font-weight: 900; letter-spacing: 0.08em; color: #1C1A17; margin: 0; }
+.lobby-sub { font-size: 0.7rem; font-weight: 600; color: rgba(0,0,0,0.55); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+.lobby-stat-row { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 24px; border-bottom: 1px solid rgba(0,0,0,0.18); }
 .lobby-count-block { display: flex; align-items: baseline; gap: 8px; }
-.lobby-count-num { font-size: 3.5rem; font-weight: 900; color: white; line-height: 1; font-variant-numeric: tabular-nums; }
-.lobby-count-label { font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.06em; }
-.lobby-status-text { font-size: 0.82rem; color: rgba(255,255,255,0.7); font-weight: 500; text-align: right; }
+.lobby-count-num { font-size: 3.5rem; font-weight: 900; color: #1C1A17; line-height: 1; font-variant-numeric: tabular-nums; }
+.lobby-count-label { font-size: 0.8rem; font-weight: 600; color: rgba(0,0,0,0.55); text-transform: uppercase; letter-spacing: 0.06em; }
+.lobby-status-text { font-size: 0.82rem; color: rgba(0,0,0,0.55); font-weight: 500; text-align: right; }
 .lobby-player-grid { display: flex; flex-wrap: wrap; gap: 8px; min-height: 48px; }
 .player-chip {
   display: flex; align-items: center; gap: 6px; padding: 8px 18px;
-  background: var(--gold); border: none; border-radius: 999px;
-  font-size: 0.85rem; font-weight: 700; color: #1C1A17;
+  background: var(--red); border: none; border-radius: 999px;
+  font-size: 0.85rem; font-weight: 700; color: white;
   animation: chip-in 0.3s cubic-bezier(0.34,1.56,0.64,1);
 }
 @keyframes chip-in { from{opacity:0;transform:scale(0.8) translateY(6px)} to{opacity:1;transform:scale(1) translateY(0)} }
 .lobby-actions { display: flex; flex-direction: column; align-items: center; gap: 16px; padding-top: 8px; }
-.player-wait { display: flex; flex-direction: column; align-items: center; gap: 12px; color: rgba(255,255,255,0.8); font-size: 0.82rem; font-weight: 500; }
+.player-wait { display: flex; flex-direction: column; align-items: center; gap: 12px; color: rgba(0,0,0,0.6); font-size: 0.82rem; font-weight: 600; }
 .player-wait p { margin: 0; }
-.wait-spinner { width: 26px; height: 26px; border: 3px solid rgba(255,255,255,0.25); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
+.wait-spinner { width: 26px; height: 26px; border: 3px solid rgba(0,0,0,0.2); border-top-color: var(--red); border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to{transform:rotate(360deg)} }
 
 /* GAME SCREEN */
