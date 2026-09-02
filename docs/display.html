@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SD Wordle — Audience Display</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --gold: #FFBC0D; --gold-dark: #c99500; --red: #DA291C;
+      --bg-dark: #1C1A17; --text-dark: #1C1A17; --white: #fff;
+    }
+    html, body { height: 100%; font-family: 'Inter', sans-serif; overflow: hidden; background: var(--gold); }
+    h1, h2, h3, .nunito { font-family: 'Nunito', 'Inter', sans-serif; }
+
+    /* ── SCREENS ─────────────────────────────────────────── */
+    .dscreen { display: none; width: 100vw; height: 100vh; position: relative; overflow: hidden; background: var(--gold); }
+    .dscreen.active { display: flex; flex-direction: column; }
+
+    /* ── FLOATING DECORATIONS ────────────────────────────── */
+    .bg-float { position: absolute; pointer-events: none; user-select: none; z-index: 0; }
+    .food-emoji { line-height: 1; filter: drop-shadow(0 10px 24px rgba(0,0,0,0.18)); animation: food-bob 3s ease-in-out infinite; }
+    @keyframes food-bob { 0%,100%{transform:translateY(0)rotate(-5deg)} 50%{transform:translateY(-18px)rotate(5deg)} }
+    .gold-coin { border-radius:50%; background:radial-gradient(circle at 35% 30%,#FFE566,#C99500 80%); box-shadow:0 4px 14px rgba(0,0,0,0.2); animation:coin-float 4s ease-in-out infinite; }
+    @keyframes coin-float { 0%,100%{transform:translateY(0)scale(1)} 50%{transform:translateY(-12px)scale(1.07)} }
+
+    /* ── SHARED HEADER ───────────────────────────────────── */
+    .disp-header {
+      position: relative; z-index: 2;
+      background: var(--red); border-bottom: 5px solid var(--gold);
+      padding: 18px 40px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .disp-brand { display: flex; align-items: center; gap: 14px; }
+    .disp-title { font-family: 'Nunito',sans-serif; font-size: 1.6rem; font-weight: 900; color: var(--white); letter-spacing: 0.04em; }
+    .disp-sub { font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.7); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px; }
+
+    /* ── WAITING SCREEN ──────────────────────────────────── */
+    #wait-screen { align-items: center; justify-content: center; }
+    .wait-content { position: relative; z-index: 2; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 28px; }
+    .wait-badge { background: var(--red); border-radius: 24px; padding: 22px 28px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 8px 32px rgba(0,0,0,0.25); }
+    .wait-logo-text { margin-top: 8px; }
+    .wait-logo-text h1 { font-family:'Nunito',sans-serif; font-size: 3rem; font-weight: 900; color: var(--text-dark); letter-spacing: 0.05em; }
+    .wait-logo-text p { font-size: 1.1rem; color: var(--text-dark); opacity: 0.7; margin-top: 4px; }
+    .wait-player-block { background: rgba(0,0,0,0.12); border-radius: 20px; padding: 24px 36px; min-width: 340px; }
+    .wait-count-num { font-family:'Nunito',sans-serif; font-size: 5rem; font-weight: 900; color: var(--text-dark); line-height: 1; }
+    .wait-count-label { font-size: 1rem; font-weight: 700; color: var(--text-dark); opacity: 0.65; letter-spacing: 0.12em; text-transform: uppercase; margin-top: 4px; }
+    .wait-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 700px; margin-top: 8px; }
+    .wait-chip { background: var(--red); color: var(--white); border-radius: 999px; padding: 6px 18px; font-size: 1rem; font-weight: 700; }
+    .wait-status { font-size: 1.05rem; color: var(--text-dark); opacity: 0.6; font-weight: 600; animation: pulse-op 2s ease-in-out infinite; }
+    @keyframes pulse-op { 0%,100%{opacity:0.5} 50%{opacity:1} }
+
+    /* ── PLAYING SCREEN ──────────────────────────────────── */
+    #play-screen { flex-direction: column; }
+    .play-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; position: relative; z-index: 2; padding: 20px 40px; }
+
+    .play-timer-block { text-align: center; }
+    .play-timer-label { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.14em; color: var(--text-dark); opacity: 0.6; text-transform: uppercase; }
+    .play-timer-val { font-family:'Nunito',sans-serif; font-size: 5rem; font-weight: 900; color: var(--text-dark); line-height: 1; transition: color 0.5s; }
+    .play-timer-val.warning { color: #b85000; }
+    .play-timer-val.danger  { color: var(--red); }
+    .play-timer-bar-track { width: 320px; height: 8px; background: rgba(0,0,0,0.15); border-radius: 99px; overflow: hidden; margin-top: 10px; }
+    .play-timer-bar { height: 100%; border-radius: 99px; background: var(--bg-dark); transition: width 1s linear, background 0.5s; }
+
+    .play-hint-block { background: rgba(0,0,0,0.13); border-radius: 14px; padding: 14px 28px; max-width: 780px; text-align: center; }
+    .play-hint-label { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; color: var(--text-dark); opacity: 0.55; text-transform: uppercase; margin-bottom: 4px; }
+    .play-hint-text { font-size: 1.25rem; font-weight: 600; color: var(--text-dark); line-height: 1.4; }
+
+    /* ── PODIUM ──────────────────────────────────────────── */
+    .podium-wrap { display: flex; align-items: flex-end; justify-content: center; gap: 16px; }
+    .podium-slot { display: flex; flex-direction: column; align-items: center; }
+    .podium-card {
+      background: rgba(0,0,0,0.14); border-radius: 16px; padding: 16px 20px; text-align: center;
+      min-width: 160px; border: 2px solid rgba(0,0,0,0.12);
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      transition: all 0.4s ease;
+    }
+    .podium-card.filled { background: rgba(255,255,255,0.22); border-color: rgba(0,0,0,0.2); }
+    .podium-medal { font-size: 2.2rem; line-height: 1; }
+    .podium-name { font-family:'Nunito',sans-serif; font-size: 1.1rem; font-weight: 900; color: var(--text-dark); }
+    .podium-meta { font-size: 0.8rem; font-weight: 600; color: var(--text-dark); opacity: 0.65; }
+    .podium-empty { font-size: 0.85rem; font-weight: 600; color: var(--text-dark); opacity: 0.4; }
+    .podium-block { border-radius: 10px 10px 0 0; background: rgba(0,0,0,0.18); width: 160px; }
+    .podium-block.p1 { height: 90px; background: rgba(0,0,0,0.22); }
+    .podium-block.p2 { height: 64px; }
+    .podium-block.p3 { height: 44px; }
+
+    .podium-players-left { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); opacity: 0.6; text-align: center; }
+
+    /* ── END SCREEN ──────────────────────────────────────── */
+    #end-screen { align-items: center; justify-content: center; }
+    .end-body { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 32px; text-align: center; }
+    .end-label { font-size: 0.85rem; font-weight: 800; letter-spacing: 0.18em; color: var(--text-dark); opacity: 0.55; text-transform: uppercase; }
+    .end-word { display: flex; gap: 12px; }
+    .end-letter {
+      width: 86px; height: 86px; background: var(--red); border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-family:'Nunito',sans-serif; font-size: 3rem; font-weight: 900; color: var(--white);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+      transform: scale(0); animation: pop-in 0.4s ease forwards;
+    }
+    @keyframes pop-in { to { transform: scale(1); } }
+    .end-podium-wrap { display: flex; align-items: flex-end; justify-content: center; gap: 16px; }
+  </style>
+</head>
+<body>
+
+  <!-- ── WAITING SCREEN ──────────────────────────────────── -->
+  <div id="wait-screen" class="dscreen active">
+    <div class="bg-float food-emoji" style="top:5%;left:2%;font-size:110px;animation-delay:0s">🍟</div>
+    <div class="bg-float food-emoji" style="bottom:8%;left:4%;font-size:130px;animation-delay:1.3s">🍔</div>
+    <div class="bg-float food-emoji" style="top:6%;right:3%;font-size:100px;animation-delay:0.7s">🥤</div>
+    <div class="bg-float food-emoji" style="bottom:12%;right:4%;font-size:90px;animation-delay:2s">🍎</div>
+    <div class="bg-float gold-coin" style="top:20%;left:18%;width:40px;height:40px;animation-delay:0.4s"></div>
+    <div class="bg-float gold-coin" style="top:12%;right:22%;width:26px;height:26px;animation-delay:1.6s"></div>
+    <div class="bg-float gold-coin" style="bottom:30%;left:16%;width:34px;height:34px;animation-delay:0.9s"></div>
+    <div class="bg-float gold-coin" style="bottom:20%;right:18%;width:22px;height:22px;animation-delay:2.1s"></div>
+    <div class="wait-content">
+      <div class="wait-badge">
+        <svg viewBox="0 0 100 82" width="90" height="74" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 82 L3 46 C3 10 16 2 32 2 C48 2 50 22 50 45 C50 22 52 2 68 2 C84 2 97 10 97 46 L97 82 L85 82 L85 52 C85 32 78 14 68 14 C58 14 54 38 54 55 C52 50 50 50 46 55 C46 38 42 14 32 14 C22 14 15 32 15 52 L15 82 Z" fill="#FFBC0D"/>
+        </svg>
+      </div>
+      <div class="wait-logo-text">
+        <h1 class="nunito">SERVICE DELIVERY WORDLE</h1>
+        <p>Join at sd-wordle-game.netlify.app</p>
+      </div>
+      <div class="wait-player-block">
+        <div id="wait-count" class="wait-count-num">0</div>
+        <div class="wait-count-label">Players Ready</div>
+      </div>
+      <div id="wait-chips" class="wait-chips"></div>
+      <div class="wait-status">Waiting for Game Master to start...</div>
+    </div>
+  </div>
+
+  <!-- ── PLAYING SCREEN ─────────────────────────────────── -->
+  <div id="play-screen" class="dscreen">
+    <header class="disp-header">
+      <div class="disp-brand">
+        <svg viewBox="0 0 100 82" width="38" height="31" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 82 L3 46 C3 10 16 2 32 2 C48 2 50 22 50 45 C50 22 52 2 68 2 C84 2 97 10 97 46 L97 82 L85 82 L85 52 C85 32 78 14 68 14 C58 14 54 38 54 55 C52 50 50 50 46 55 C46 38 42 14 32 14 C22 14 15 32 15 52 L15 82 Z" fill="#FFBC0D"/>
+        </svg>
+        <div>
+          <div class="disp-title">SERVICE DELIVERY WORDLE</div>
+          <div class="disp-sub">Live Game</div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="play-timer-label">TIME REMAINING</div>
+        <div id="play-timer" class="play-timer-val">5:00</div>
+        <div class="play-timer-bar-track"><div id="play-timer-bar" class="play-timer-bar" style="width:100%"></div></div>
+      </div>
+    </header>
+    <div class="play-body">
+      <div id="play-hint-block" class="play-hint-block">
+        <div class="play-hint-label">Hint</div>
+        <div id="play-hint-text" class="play-hint-text">—</div>
+      </div>
+      <div class="podium-wrap" id="play-podium"></div>
+      <div id="play-still" class="podium-players-left"></div>
+    </div>
+  </div>
+
+  <!-- ── END SCREEN ─────────────────────────────────────── -->
+  <div id="end-screen" class="dscreen">
+    <div class="bg-float food-emoji" style="top:5%;left:2%;font-size:110px;animation-delay:0s">🍟</div>
+    <div class="bg-float food-emoji" style="bottom:8%;left:4%;font-size:130px;animation-delay:1.3s">🍔</div>
+    <div class="bg-float food-emoji" style="top:6%;right:3%;font-size:100px;animation-delay:0.7s">🥤</div>
+    <div class="bg-float food-emoji" style="bottom:12%;right:4%;font-size:90px;animation-delay:2s">🍎</div>
+    <div class="end-body">
+      <div class="end-label">The word was</div>
+      <div id="end-word" class="end-word"></div>
+      <div class="end-podium-wrap" id="end-podium"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA8weKNXQr7ZdLOI6TZ7CVGd4f7ELhvHrY",
+      authDomain: "sd-wordle.firebaseapp.com",
+      databaseURL: "https://sd-wordle-default-rtdb.firebaseio.com",
+      projectId: "sd-wordle",
+      storageBucket: "sd-wordle.firebasestorage.app",
+      messagingSenderId: "860394478423",
+      appId: "1:860394478423:web:1926abf83708f6dd2f3c12"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getDatabase(app);
+    const $   = id => document.getElementById(id);
+    const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+    const TOTAL_TIME = 300;
+    let currentPhase = 'waiting', currentGameId = 1, currentWord = '', currentPlayers = {};
+
+    function showScreen(id) {
+      document.querySelectorAll('.dscreen').forEach(s => s.classList.remove('active'));
+      $(id).classList.add('active');
+    }
+
+    // ── WAITING ──────────────────────────────────────────────
+    function renderWaiting(players) {
+      const list = Object.values(players||{}).filter(p => p.gameId === currentGameId);
+      $('wait-count').textContent = list.length;
+      $('wait-chips').innerHTML = list.map(p =>
+        '<div class="wait-chip">'+esc(p.name)+'</div>'
+      ).join('');
+    }
+
+    // ── TIMER ────────────────────────────────────────────────
+    function updateTimer(secs) {
+      const m = Math.floor(secs/60), s = String(secs%60).padStart(2,'0');
+      $('play-timer').textContent = m+':'+s;
+      $('play-timer-bar').style.width = ((secs/TOTAL_TIME)*100)+'%';
+      if (secs > 120)     { $('play-timer').className='play-timer-val'; $('play-timer-bar').style.background='#1C1A17'; }
+      else if (secs > 60) { $('play-timer').className='play-timer-val warning'; $('play-timer-bar').style.background='#b85000'; }
+      else                { $('play-timer').className='play-timer-val danger';  $('play-timer-bar').style.background='#DA291C'; }
+    }
+
+    // ── PODIUM ───────────────────────────────────────────────
+    function buildPodium(containerId, players) {
+      const solvers = Object.values(players||{})
+        .filter(p => p.gameId === currentGameId && p.solved)
+        .sort((a,b) => b.score - a.score)
+        .slice(0, 3);
+
+      const total   = Object.values(players||{}).filter(p => p.gameId === currentGameId).length;
+      const solving = total - solvers.length;
+
+      // Order: 2nd | 1st | 3rd
+      const slots = [
+        { rank:2, medal:'🥈', blockClass:'p2' },
+        { rank:1, medal:'🥇', blockClass:'p1' },
+        { rank:3, medal:'🥉', blockClass:'p3' },
+      ];
+
+      $(containerId).innerHTML = slots.map(slot => {
+        const p = solvers[slot.rank - 1];
+        const t = p && p.solveTime != null
+          ? Math.floor(p.solveTime/60)+':'+String(p.solveTime%60).padStart(2,'0')
+          : null;
+        const card = p
+          ? '<div class="podium-card filled">'
+            +'<div class="podium-medal">'+slot.medal+'</div>'
+            +'<div class="podium-name">'+esc(p.name)+'</div>'
+            +'<div class="podium-meta">'+p.numGuesses+' guess'+(p.numGuesses!==1?'es':'')+' · '+t+'</div>'
+            +'</div>'
+          : '<div class="podium-card">'
+            +'<div class="podium-medal" style="opacity:0.25">'+slot.medal+'</div>'
+            +'<div class="podium-empty">—</div>'
+            +'</div>';
+        return '<div class="podium-slot">'+card
+          +'<div class="podium-block '+slot.blockClass+'"></div></div>';
+      }).join('');
+
+      if (containerId === 'play-podium') {
+        $('play-still').textContent = solving > 0
+          ? solving + ' player'+(solving!==1?'s':'')+' still solving...'
+          : total > 0 ? 'All players finished!' : '';
+      }
+    }
+
+    // ── END WORD REVEAL ───────────────────────────────────────
+    function revealWord(word) {
+      $('end-word').innerHTML = word.split('').map((l, i) =>
+        '<div class="end-letter" style="animation-delay:'+(i*0.12)+'s">'+l+'</div>'
+      ).join('');
+    }
+
+    // ── SESSION LISTENER ─────────────────────────────────────
+    onValue(ref(db,'sdwordle/session'), snap => {
+      const s = snap.val(); if (!s) return;
+      currentGameId = s.gameId || 1;
+      currentWord   = s.word  || '';
+
+      if (s.phase === 'waiting') {
+        currentPhase = 'waiting';
+        showScreen('wait-screen');
+      } else if (s.phase === 'playing') {
+        currentPhase = 'playing';
+        $('play-hint-text').textContent = s.hint || '—';
+        updateTimer(s.timeLeft || 0);
+        buildPodium('play-podium', currentPlayers);
+        showScreen('play-screen');
+      } else if (s.phase === 'leaderboard') {
+        currentPhase = 'leaderboard';
+        revealWord(currentWord);
+        buildPodium('end-podium', currentPlayers);
+        showScreen('end-screen');
+      }
+    });
+
+    // ── PLAYERS LISTENER ─────────────────────────────────────
+    onValue(ref(db,'sdwordle/players'), snap => {
+      currentPlayers = snap.val() || {};
+      if (currentPhase === 'waiting')     renderWaiting(currentPlayers);
+      if (currentPhase === 'playing')     buildPodium('play-podium',  currentPlayers);
+      if (currentPhase === 'leaderboard') buildPodium('end-podium',   currentPlayers);
+    });
+  </script>
+</body>
+</html>
