@@ -198,6 +198,68 @@
     const $ = id => document.getElementById(id);
     const TOTAL_TIME = 300, ROWS = 6, COLS = 5;
 
+    // ── AUDIO ENGINE ─────────────────────────────────────────
+    let AC = null, bgTimer = null, bgNext = 0;
+    const BPM = 124, BEAT = 60 / BPM;
+
+    function initAudio() {
+      if (AC) return;
+      try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+    }
+
+    function osc(freq, t, dur, type='triangle', vol=0.12) {
+      if (!AC) return;
+      const o = AC.createOscillator(), g = AC.createGain();
+      o.type = type; o.frequency.value = freq;
+      g.gain.setValueAtTime(vol, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(AC.destination);
+      o.start(t); o.stop(t + dur + 0.01);
+    }
+
+    function kick(t) {
+      if (!AC) return;
+      const o = AC.createOscillator(), g = AC.createGain();
+      o.frequency.setValueAtTime(110, t);
+      o.frequency.exponentialRampToValueAtTime(0.01, t + 0.25);
+      g.gain.setValueAtTime(0.45, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+      o.connect(g); g.connect(AC.destination);
+      o.start(t); o.stop(t + 0.25);
+    }
+
+    // C major pentatonic: C5 D5 E5 G5 A5 C6
+    const MNOTES = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50];
+
+    function scheduleBar(t) {
+      kick(t); kick(t + BEAT * 2);
+      // Upbeat 8-step melody pattern
+      [0,2,3,2,1,3,2,0].forEach((n,i) => osc(MNOTES[n], t + i * BEAT * 0.5, BEAT * 0.42));
+      return t + BEAT * 4;
+    }
+
+    function startBgMusic() {
+      if (!AC || bgTimer) return;
+      bgNext = AC.currentTime + 0.05;
+      bgTimer = setInterval(() => {
+        if (!AC) return;
+        while (bgNext < AC.currentTime + BEAT * 8) bgNext = scheduleBar(bgNext);
+      }, 100);
+    }
+
+    function stopBgMusic() { clearInterval(bgTimer); bgTimer = null; }
+
+    function playSuccess() {
+      if (!AC) return;
+      const t = AC.currentTime;
+      // Rising arpeggio C5-E5-G5-C6
+      [523.25, 659.25, 783.99, 1046.50].forEach((f, i) =>
+        osc(f, t + i * 0.11, 0.55, 'sine', 0.38));
+      // Final chord swell
+      [523.25, 659.25, 783.99].forEach(f => osc(f, t + 0.48, 0.9, 'sine', 0.18));
+    }
+    // ─────────────────────────────────────────────────────────
+
     // All words in the game's word bank — always valid to guess
     const GAME_VOCAB = new Set(['FRIES','CLOWN','PATTY','FILET','MCRIB','HAPPY','SHAKE','SAUCE',
       'GRILL','APPLE','MEALS','STORE','SODAS','ASSET','DEBIT','AUDIT','TAXES','FUNDS','LEASE',
@@ -449,7 +511,7 @@
       revealRow(rowToReveal, result, ()=>{
         updateKeyboard(guess,result);
         if(isSolved){
-          solved=true; bounceRow(rowToReveal);
+          solved=true; bounceRow(rowToReveal); stopBgMusic(); playSuccess();
           showStatus('Incident Resolved! SLA Met. ✓','success',0);
           const solveTime=TOTAL_TIME-localTimeLeft;
           const score=calcScore(myGuessCount,solveTime);
@@ -486,6 +548,7 @@
       if(!name){$('name-input').focus();return;}
       $('join-btn').disabled=true;
       playerName=name;
+      initAudio(); // unlock audio context on user gesture
 
       const snap=await get(ref(db,'sdwordle/session'));
       const session=snap.val()||{phase:'waiting',gameId:1,timeLeft:TOTAL_TIME,word:'',hint:''};
@@ -528,9 +591,11 @@
             $('leaderboard-overlay').classList.add('hidden');
             resetBoard(); showHint(s.hint);
             showScreen('game-screen');
+            startBgMusic();
             toast('🚨 Incident Reported — Identify the keyword!','alert');
           } else if(s.phase==='leaderboard'){
             gameOver=true;
+            stopBgMusic();
             get(ref(db,'sdwordle/players')).then(pSnap=>{
               showLeaderboard(currentWord, pSnap.val()||{});
             });
