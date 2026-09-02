@@ -101,6 +101,32 @@
     }
     @keyframes pop-in { to { transform: scale(1); } }
     .end-podium-wrap { display: flex; align-items: flex-end; justify-content: center; gap: 16px; }
+
+    /* full ranked list */
+    .full-list { width: 100%; max-width: 680px; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; max-height: 260px; }
+    .full-list-row {
+      display: grid; grid-template-columns: 36px 1fr 80px 80px 72px;
+      align-items: center; gap: 10px;
+      background: rgba(0,0,0,0.1); border-radius: 10px; padding: 8px 14px;
+      font-size: 0.95rem;
+    }
+    .full-list-row.solved { background: rgba(255,255,255,0.18); }
+    .full-list-row.unsolved { opacity: 0.55; }
+    .fl-rank { font-family:'Nunito',sans-serif; font-weight:900; font-size:1rem; color:var(--text-dark); text-align:center; }
+    .fl-name { font-weight:700; color:var(--text-dark); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .fl-guesses, .fl-time { font-size:0.85rem; color:var(--text-dark); opacity:0.7; text-align:center; }
+    .fl-score { font-family:'Nunito',sans-serif; font-weight:900; color:var(--text-dark); text-align:right; }
+    .fl-header {
+      display: grid; grid-template-columns: 36px 1fr 80px 80px 72px;
+      gap: 10px; padding: 0 14px 4px;
+      font-size: 0.7rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+      color: var(--text-dark); opacity:0.5;
+    }
+
+    /* end screen layout */
+    #end-screen { overflow-y: auto; }
+    .end-body { padding: 28px 40px 32px; }
+    .end-section-label { font-size:0.75rem; font-weight:800; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-dark); opacity:0.5; margin-bottom:10px; }
   </style>
 </head>
 <body>
@@ -172,6 +198,13 @@
       <div class="end-label">The word was</div>
       <div id="end-word" class="end-word"></div>
       <div class="end-podium-wrap" id="end-podium"></div>
+      <div style="margin-top:24px;width:100%;max-width:680px">
+        <div class="end-section-label">Full Rankings</div>
+        <div class="fl-header">
+          <span></span><span>Player</span><span style="text-align:center">Guesses</span><span style="text-align:center">Time</span><span style="text-align:right">Score</span>
+        </div>
+        <div id="end-full-list" class="full-list"></div>
+      </div>
     </div>
   </div>
 
@@ -264,6 +297,32 @@
       }
     }
 
+    // ── FULL RANKED LIST ─────────────────────────────────────
+    function buildFullList(players) {
+      const all = Object.values(players||{}).filter(p => p.gameId === currentGameId);
+      const solved   = all.filter(p => p.solved).sort((a,b) => b.score - a.score);
+      const unsolved = all.filter(p => !p.solved);
+      const ranked   = [...solved, ...unsolved];
+      const medals   = ['🥇','🥈','🥉'];
+
+      if (!$('end-full-list')) return;
+      $('end-full-list').innerHTML = ranked.map((p, i) => {
+        const rank   = i + 1;
+        const rankEl = rank <= 3 ? medals[i] : rank;
+        const t = p.solved && p.solveTime != null
+          ? Math.floor(p.solveTime/60)+':'+String(p.solveTime%60).padStart(2,'0')
+          : '—';
+        const score = p.solved ? p.score.toLocaleString() : '—';
+        return '<div class="full-list-row '+(p.solved?'solved':'unsolved')+'">'
+          +'<span class="fl-rank">'+rankEl+'</span>'
+          +'<span class="fl-name">'+esc(p.name)+'</span>'
+          +'<span class="fl-guesses">'+(p.solved ? p.numGuesses : '—')+'</span>'
+          +'<span class="fl-time">'+t+'</span>'
+          +'<span class="fl-score">'+score+'</span>'
+          +'</div>';
+      }).join('') || '<div style="text-align:center;padding:12px;opacity:0.5;font-size:0.9rem">No players this round</div>';
+    }
+
     // ── END WORD REVEAL ───────────────────────────────────────
     function revealWord(word) {
       $('end-word').innerHTML = word.split('').map((l, i) =>
@@ -290,6 +349,7 @@
         currentPhase = 'leaderboard';
         revealWord(currentWord);
         buildPodium('end-podium', currentPlayers);
+        buildFullList(currentPlayers);
         showScreen('end-screen');
       }
     });
@@ -299,7 +359,7 @@
       currentPlayers = snap.val() || {};
       if (currentPhase === 'waiting')     renderWaiting(currentPlayers);
       if (currentPhase === 'playing')     buildPodium('play-podium',  currentPlayers);
-      if (currentPhase === 'leaderboard') buildPodium('end-podium',   currentPlayers);
+      if (currentPhase === 'leaderboard') { buildPodium('end-podium', currentPlayers); buildFullList(currentPlayers); }
     });
   </script>
 </body>
