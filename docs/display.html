@@ -58,7 +58,8 @@
     .play-timer-label { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.14em; color: var(--text-dark); opacity: 0.6; text-transform: uppercase; }
     .play-timer-val { font-family:'Nunito',sans-serif; font-size: 5rem; font-weight: 900; color: var(--text-dark); line-height: 1; transition: color 0.5s; }
     .play-timer-val.warning { color: #b85000; }
-    .play-timer-val.danger  { color: var(--red); }
+    .play-timer-val.danger  { color: #fff; animation: blink 1s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
     .play-timer-bar-track { width: 320px; height: 8px; background: rgba(0,0,0,0.15); border-radius: 99px; overflow: hidden; margin-top: 10px; }
     .play-timer-bar { height: 100%; border-radius: 99px; background: var(--bg-dark); transition: width 1s linear, background 0.5s; }
 

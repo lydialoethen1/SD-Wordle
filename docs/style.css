@@ -176,7 +176,7 @@ h1, h2, .btn-deploy, .btn-start, .lobby-title, .header-title, .gm-title, .join-l
 .timer-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; color: rgba(255,255,255,0.65); text-transform: uppercase; margin-bottom: 2px; }
 .timer-value { font-size: 1.8rem; font-weight: 900; letter-spacing: 0.04em; color: var(--green); transition: color 0.5s; font-variant-numeric: tabular-nums; }
 .timer-value.warning { color: var(--gold); }
-.timer-value.danger  { color: var(--red); animation: blink 1s infinite; }
+.timer-value.danger  { color: #fff; animation: blink 1s infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.5} }
 .timer-bar-track { margin-top: 4px; width: 120px; height: 4px; background: var(--bg3); border-radius: 999px; overflow: hidden; }
 .timer-bar { height: 100%; width: 100%; background: var(--green); border-radius: 999px; transition: width 1s linear, background-color 0.5s; }

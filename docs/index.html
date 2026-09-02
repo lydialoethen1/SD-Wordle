@@ -428,8 +428,8 @@
       return result;
     }
 
-    // Speed is primary (up to 3000 pts), guesses are tiebreaker (up to 600 pts)
-    function calcScore(numGuesses, solveTime) { return Math.max(0,TOTAL_TIME-solveTime)*10 + (7-numGuesses)*100; }
+    // Score = seconds remaining when solved × 10 — purely speed-based
+    function calcScore(numGuesses, solveTime) { return Math.max(0, TOTAL_TIME - solveTime) * 10; }
 
     function submitGuess() {
       if(gameOver||solved||!currentWord) return;
